@@ -24,6 +24,8 @@ git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard
 
 ## 状态
 
-代码向（接手大型仓库）已在真实项目实测通过；纯文档向实测中。
+代码向（接手大型仓库）与纯文档向（一份无结构内训文字稿 + 助教角色）均已用
+"陌生 agent + 真实资料"实测通过：3 分钟内开课，零文档落盘，教学循环（考-判-换讲法）
+完整跑通。
 
 MIT

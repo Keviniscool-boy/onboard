@@ -35,3 +35,23 @@ git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard
 完整流程见 [SKILL.md](SKILL.md)，验收方法见 [evals/README.md](evals/README.md)。
 
 MIT
+
+## 为什么可信
+
+每条规则都经过"陌生 agent + 真实资料"实测：代码仓库、无结构文档堆、银行法规
+（Word/PDF/Excel）、PPT、703 文件抽样档；教学循环（换讲法/降级/续学/结课/回补/
+指纹校验）逐分支验证。全部记录在 [evals/](evals/)——包括两次被真实用户否决的
+设计方向。
+
+## English
+
+**onboard** is an agent skill that turns any pile of project materials (code,
+docs, PDF, Excel, PPT) into a sourced decomposition — every claim cited or
+flagged as inference — plus a goal-driven three-tier learning path
+(*must-know now / lookup-when-needed / skippable*), then teaches you through
+it by default. Gaps and contradictions are surfaced, never silently filled.
+
+Install: `git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard`
+
+Every rule in SKILL.md is validated by stranger-agent testing on real
+materials — see [evals/](evals/README.md).

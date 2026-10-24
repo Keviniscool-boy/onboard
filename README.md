@@ -1,5 +1,7 @@
 # 快速梳理（onboard）
 
+[![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/Keviniscool-boy/onboard)
+
 帮你快速看懂并上手陌生的大型项目。把代码仓库、业务流程、制度文档、表格或混合资料交给 AI，它会先拆解项目，再按你的目标安排学习顺序并带你学习。
 
 ## 怎么工作

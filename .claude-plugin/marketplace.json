@@ -4,11 +4,11 @@
   "plugins": [
     {
       "name": "onboard",
-      "source": "../",
+      "source": ".",
       "description": "Decompose any large project's materials (code/docs/PDF/Excel/PPT) into a sourced overview with a goal-driven three-tier learning path, then teach it interactively",
       "version": "3.1.1",
       "category": "productivity",
-      "keywords": ["onboarding", "codebase", "learning-path", "decomposition", "skill"]
+      "keywords": ["onboarding", "learning-path", "codebase-understanding", "docs", "agent-skill"]
     }
   ]
 }

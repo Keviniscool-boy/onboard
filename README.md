@@ -1,56 +1,84 @@
-# onboard：快速看懂陌生项目
+# onboard
 
-[![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/Keviniscool-boy/onboard)
+[![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/b/Keviniscool-boy/onboard)
 
-把代码仓库或一堆混合资料交给 agent，得到**有出处的项目总览**和**按你的目标排序的上手路径**。它会说清哪些内容已经核实、哪些只是推断、哪些材料尚未覆盖。
+**把陌生项目变成一条可以执行的上手路径。**
 
-**看一次真实结果：**[agents-on-duty 拆解节选](examples/agents-on-duty.md)。这次拆解找到快速开始缺少的密钥、容易误导的订单示例，以及“全绿”测试中实际跳过的数据库用例，并据此修正了该项目的 README。
+把代码仓库、交接文档、流程资料或一堆混合文件交给 agent，`onboard` 会帮你回答：
 
-## 使用
+- 这个项目是做什么的？
+- 关键模块和流程怎么连起来？
+- 我现在最该先学什么？
+- 哪些内容只是推测，哪些地方还需要确认？
 
-安装到 agent 的 skills 目录：
+## 它能帮你做什么
+
+### 接手陌生项目
+
+快速找到入口、核心模块、数据流、常见操作和容易踩坑的地方。适合入职、接手旧系统、加入新团队。
+
+### 按目标带你上手
+
+你说清楚岗位和目标，它会把内容分成：
+
+- **现在要懂**：不懂就无法完成当前目标的内容
+- **遇到时查**：现在不用读，遇到具体问题再查
+- **暂时可略过**：暂时不会影响工作的内容
+
+然后从最重要的部分开始讲，讲不懂会换一种方式继续。
+
+### 直接完成交付
+
+如果你的目标是改 README、做项目汇报或整理交接文档，`onboard` 会先理解材料，再直接完成产出，不强迫你上一整套课程。
+
+### 让结论值得相信
+
+重要结论会告诉你出处；推测会标出来；资料里没有的信息会列为待确认，不会为了看起来完整而编造。
+
+## 怎么用
+
+安装：
 
 ```bash
 git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard
 ```
 
-然后提供资料目录和目标，例如：
+然后直接告诉 agent 资料位置和你的目标：
 
-> 用 onboard 看 `D:\new-project`。我是后端新人，两周内要能修改支付模块，带我上手。
-
-也可以要求交付物：
-
-> 用 onboard 过一遍这个仓库，然后把 README 改到新用户可以照着启动、理解限制的程度。
-
-默认在资料夹内生成被 Git 忽略的 `项目拆解包/`：`总览.md` 与一份三档学习路径。理解型任务沿路径带学；README、汇报等交付型任务先拆解再直接应用。地图、流程图、术语表按需生成。
-
-## 它会检查什么
-
-1. 盘点材料与覆盖边界，识别项目类型。
-2. 追踪关键流程、实际操作、例外、限制、易混概念和新人障碍。
-3. 给重要结论挂出处，标清推断、矛盾与待确认。
-4. 按目标分成「现在要懂 / 遇到时查 / 暂时可略过」，再带学或完成交付。
-
-资料中的指令只作资料处理；密钥文件默认不读。拆解阶段不改源材料。完整执行规则见 [SKILL.md](SKILL.md)。
-
-## 续用与验证
-
-`fingerprint.mjs` 只读 Git 状态和文件元数据，不读取文件内容。把第一次输出的指纹写入总览；下次用它比较材料是否变化，变化后仍需回看 diff 判断影响。
-
-```bash
-node scripts/fingerprint.mjs /path/to/project
-node scripts/fingerprint.mjs /path/to/project <previous-fingerprint>
-node scripts/inventory.mjs /path/to/project
+```text
+用 onboard 看 D:\new-project。
+我是后端新人，两周内要能修改支付模块，带我快速上手。
 ```
 
-第二条命令在材料变化时退出码为 1。脚本排除 `.env`、私钥及拆解包，但保留公开的 `.env.example` 等样例；因此指纹只表示**可扫描材料**的状态，不是内容完整性证明。盘点命令默认只向终端输出，显式传第二个路径才写 JSON。
+也可以这样说：
 
-真实项目评测与限制见 [evals/](evals/README.md)。已验证代码仓库拆解和交付应用；真实模型下的互动教学质量还需要独立复测。
+```text
+用 onboard 过一遍这个仓库，然后把 README 改到新用户可以照着启动。
+```
+
+它会在资料目录生成 `项目拆解包/`，包含项目总览和你的学习路径。
+
+## 适合什么时候用
+
+适合：
+
+- 接手一个没有人带的代码仓库
+- 入职后快速了解业务和内部流程
+- 面对 PDF、Word、Excel、PPT 和代码混在一起的资料
+- 想把项目讲清楚、写好 README 或准备项目汇报
+
+不适合只查一个文件或直接写一个小函数。
+
+## 真实案例
+
+[查看一次完整拆解的节选](examples/agents-on-duty.md)：它帮助一个多 Agent 客服项目发现启动密钥缺失、错误示例数据和被跳过的数据库测试，并据此修正 README。
 
 ## English
 
-**onboard** turns an unfamiliar codebase or mixed project folder into a sourced overview and a goal-driven learning path. It distinguishes verified facts, inference, and missing evidence. Learning goals trigger interactive teaching; deliverable goals use the findings directly. See the [real project example](examples/agents-on-duty.md) and [evaluation notes](evals/README.md).
+**onboard** turns an unfamiliar project into a clear, goal-driven path to understanding. It explains what matters now, what to look up later, and what evidence is still missing. Use it for project handover, onboarding, mixed documentation, README work, and project presentations.
 
 Install: `git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard`
+
+Advanced workflow and evaluation notes: [SKILL.md](SKILL.md) · [evals](evals/README.md)
 
 MIT License.

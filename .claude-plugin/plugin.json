@@ -1,7 +1,7 @@
 {
   "name": "onboard",
-  "version": "3.1.1",
-  "description": "Decompose any large project's materials (code/docs/PDF/Excel/PPT) into a sourced overview with a goal-driven three-tier learning path, then teach it interactively; every rule validated by stranger-agent testing",
+  "version": "3.2.0",
+  "description": "Turn unfamiliar project materials into a sourced overview and goal-driven learning path, then teach or apply the findings to a deliverable",
   "author": { "name": "Keviniscool-boy" },
   "skills": "./skills"
 }

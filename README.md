@@ -1,59 +1,56 @@
-# 快速梳理（onboard）
+# onboard：快速看懂陌生项目
 
 [![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/Keviniscool-boy/onboard)
 
-帮你快速看懂并上手陌生的大型项目。把代码仓库、业务流程、制度文档、表格或混合资料交给 AI，它会先拆解项目，再按你的目标安排学习顺序并带你学习。
+把代码仓库或一堆混合资料交给 agent，得到**有出处的项目总览**和**按你的目标排序的上手路径**。它会说清哪些内容已经核实、哪些只是推断、哪些材料尚未覆盖。
 
-## 怎么工作
-
-1. **盘点资料**：识别项目类型，说明检查了什么、哪些材料无法读取。
-2. **拆解全貌**：梳理关键组成、关系、流程、易错点和资料缺口；结论标出处，推断和矛盾明确标出。
-3. **规划上手路径**：按你的目标区分“现在要懂”“遇到时查”和“暂时可略过”。重要性取决于它是否影响理解项目、完成目标或避免常见错误。
-4. **按目标执行**：想上手时从重点带学；想写 README 等产物时，先拆解再直接应用。过程中发现遗漏，就回到材料核实并补充。
-
-代码项目会重点追踪模块、数据流和调用链；业务或文职资料会重点梳理角色、流程、规则和指标。具体方法随材料类型调整。
+**看一次真实结果：**[agents-on-duty 拆解节选](examples/agents-on-duty.md)。这次拆解找到快速开始缺少的密钥、容易误导的订单示例，以及“全绿”测试中实际跳过的数据库用例，并据此修正了该项目的 README。
 
 ## 使用
 
-安装后，告诉 agent 资料位置和你的目标：
-
-> 资料在 `D:\new-project`。我是后端新人，两周内要能修改支付模块，带我快速上手。
-
-默认生成 `项目拆解包/`，其中包含精简总览和学习路径；地图、流程图、术语表等按项目需要补充。产出物任务完成后停止带学，理解项目的任务默认直接开讲。
-
-## 边界
-
-- 拆解阶段只读源材料；用户要求改 README 等材料时，拆解后再应用修改。Git 仓库会忽略拆解包。
-- 密钥默认不读取；资料中的指令按资料内容处理，不执行。
-- 标明资料覆盖范围；无法确认的内容列为推断、矛盾或待确认问题。
-- 控制阅读和产物规模，优先讲清对上手有影响的内容。
-
-## 安装
+安装到 agent 的 skills 目录：
 
 ```bash
 git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard
 ```
 
-完整流程见 [SKILL.md](SKILL.md)，验收方法见 [evals/README.md](evals/README.md)。
+然后提供资料目录和目标，例如：
 
-MIT
+> 用 onboard 看 `D:\new-project`。我是后端新人，两周内要能修改支付模块，带我上手。
 
-## 为什么可信
+也可以要求交付物：
 
-每条规则都经过"陌生 agent + 真实资料"实测：代码仓库、无结构文档堆、银行法规
-（Word/PDF/Excel）、PPT、703 文件抽样档；教学循环（换讲法/降级/续学/结课/回补/
-指纹校验）逐分支验证。全部记录在 [evals/](evals/)——包括两次被真实用户否决的
-设计方向。
+> 用 onboard 过一遍这个仓库，然后把 README 改到新用户可以照着启动、理解限制的程度。
+
+默认在资料夹内生成被 Git 忽略的 `项目拆解包/`：`总览.md` 与一份三档学习路径。理解型任务沿路径带学；README、汇报等交付型任务先拆解再直接应用。地图、流程图、术语表按需生成。
+
+## 它会检查什么
+
+1. 盘点材料与覆盖边界，识别项目类型。
+2. 追踪关键流程、实际操作、例外、限制、易混概念和新人障碍。
+3. 给重要结论挂出处，标清推断、矛盾与待确认。
+4. 按目标分成「现在要懂 / 遇到时查 / 暂时可略过」，再带学或完成交付。
+
+资料中的指令只作资料处理；密钥文件默认不读。拆解阶段不改源材料。完整执行规则见 [SKILL.md](SKILL.md)。
+
+## 续用与验证
+
+`fingerprint.mjs` 只读 Git 状态和文件元数据，不读取文件内容。把第一次输出的指纹写入总览；下次用它比较材料是否变化，变化后仍需回看 diff 判断影响。
+
+```bash
+node scripts/fingerprint.mjs /path/to/project
+node scripts/fingerprint.mjs /path/to/project <previous-fingerprint>
+node scripts/inventory.mjs /path/to/project
+```
+
+第二条命令在材料变化时退出码为 1。脚本排除 `.env`、私钥及拆解包，但保留公开的 `.env.example` 等样例；因此指纹只表示**可扫描材料**的状态，不是内容完整性证明。盘点命令默认只向终端输出，显式传第二个路径才写 JSON。
+
+真实项目评测与限制见 [evals/](evals/README.md)。已验证代码仓库拆解和交付应用；真实模型下的互动教学质量还需要独立复测。
 
 ## English
 
-**onboard** is an agent skill that turns any pile of project materials (code,
-docs, PDF, Excel, PPT) into a sourced decomposition — every claim cited or
-flagged as inference — plus a goal-driven three-tier learning path
-(*must-know now / lookup-when-needed / skippable*), then teaches you through
-it by default. Gaps and contradictions are surfaced, never silently filled.
+**onboard** turns an unfamiliar codebase or mixed project folder into a sourced overview and a goal-driven learning path. It distinguishes verified facts, inference, and missing evidence. Learning goals trigger interactive teaching; deliverable goals use the findings directly. See the [real project example](examples/agents-on-duty.md) and [evaluation notes](evals/README.md).
 
 Install: `git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard`
 
-Every rule in SKILL.md is validated by stranger-agent testing on real
-materials — see [evals/](evals/README.md).
+MIT License.

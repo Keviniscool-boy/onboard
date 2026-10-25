@@ -5,8 +5,8 @@
     {
       "name": "onboard",
       "source": ".",
-      "description": "Decompose any large project's materials (code/docs/PDF/Excel/PPT) into a sourced overview with a goal-driven three-tier learning path, then teach it interactively",
-      "version": "3.1.1",
+      "description": "Turn unfamiliar project materials into a sourced overview and goal-driven learning path, then teach or apply the findings to a deliverable",
+      "version": "3.2.0",
       "category": "productivity",
       "keywords": ["onboarding", "learning-path", "codebase-understanding", "docs", "agent-skill"]
     }

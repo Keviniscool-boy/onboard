@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 // onboard skill 第 0 步：盘点资料文件夹（零 LLM，硬事实）
 // 用法：node inventory.mjs <资料文件夹> [输出json路径]
-// 产出：inventory.json（给 agent 读）+ 终端摘要（给人看）
+// 默认只输出摘要；指定路径时才写 JSON 清单。
 import { execFileSync } from 'node:child_process';
 import { readdirSync, statSync, writeFileSync, existsSync, readFileSync } from 'node:fs';
 import { join, relative, basename, resolve } from 'node:path';
 
 const root = resolve(process.argv[2] || '');
 if (!existsSync(root)) { console.error(`文件夹不存在：${root}`); process.exit(1); }
-const outPath = process.argv[3] || 'inventory.json';
+const outPath = process.argv[3];
 
 const EXCLUDE_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt',
   '__pycache__', '.venv', 'venv', 'env', 'target', 'vendor', 'coverage', '.gradle', '.idea',
-  '.vscode', 'site-packages', 'Pods', 'DerivedData', '__MACOSX', '.terraform']);
+  '.vscode', 'site-packages', 'Pods', 'DerivedData', '__MACOSX', '.terraform', '项目拆解包']);
 const BINARY_EXT = new Set(['.png', '.jpg', '.jpeg', '.gif', '.webp', '.ico', '.bmp', '.tiff',
   '.mp4', '.mov', '.avi', '.mkv', '.mp3', '.wav', '.flac', '.zip', '.rar', '.7z', '.tar', '.gz',
   '.bz2', '.xz', '.exe', '.dll', '.so', '.dylib', '.apk', '.ipa', '.msi', '.bin', '.iso', '.dmg',
@@ -117,7 +117,7 @@ docs.sort((a, b) => b.sizeKB - a.sizeKB);
 const docList = docs.slice(0, 200);
 const result = { root, scannedAt: new Date().toISOString(), totals: { files: fileCount, gitRepos: repos.length, docs: docs.length, staleDocs },
   repos, docsByExt, docList, bigFiles: bigFiles.slice(0, 30), warnings };
-writeFileSync(outPath, JSON.stringify(result, null, 2), 'utf8');
+if (outPath) writeFileSync(outPath, JSON.stringify(result, null, 2), 'utf8');
 
 // 终端摘要
 const fmtLangs = r => r.languages.slice(0, 5).map(l => `${l.name} ${l.files} 文件`).join('、') || '无代码';
@@ -133,4 +133,4 @@ console.log(`\n## 文档分布：${Object.entries(docsByExt).map(([e, n]) => `${
 console.log(`最大的文档：${docList.slice(0, 8).map(d => `${d.path}(${d.sizeKB}KB${d.stale ? ',可能过期' : ''})`).join('、') || '无'}`);
 if (bigFiles.length) console.log(`\n大文件(>20MB)：${bigFiles.slice(0, 10).map(b => `${b.path}(${b.sizeMB}MB)`).join('、')}`);
 if (warnings.length) console.log(`\n警告：\n- ${warnings.slice(0, 10).join('\n- ')}`);
-console.log(`\n完整数据：${outPath}`);
+if (outPath) console.log(`\n完整数据：${outPath}`);

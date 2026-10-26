@@ -40,6 +40,7 @@ const SECRET_NAME = /^(?:\.env(?:\..*)?|.*\.(?:pem|key|p12|pfx|jks|keystore)$|id
 
 const warnings = [];
 let fileCount = 0;
+let totalBytes = 0;
 const docs = [], bigFiles = [], sensitiveExcluded = [];
 const gitRepoDirs = [];
 let walkIncomplete = false;
@@ -84,9 +85,12 @@ function walk(dir, depth) {
     } else if (ent.isFile()) {
       fileCount++;
       const ext = (ent.name.match(/\.[^.\s]+$/) || [''])[0].toLowerCase();
-      if (SECRET_NAME.test(ent.name)) { sensitiveExcluded.push(relative(root, full)); }
+      const sensitive = SECRET_NAME.test(ent.name);
+      if (sensitive) sensitiveExcluded.push(relative(root, full));
       let st; try { st = statSync(full); } catch (e) { note(`读不了 ${relative(root, full)}: ${e.code || e.message}`); continue; }
-      if (DOC_EXT.has(ext)) {
+      totalBytes += st.size;
+      // 敏感命名文件只登记排除，不进文档清单（U6：一处登记、一处不列，避免口径含混）
+      if (DOC_EXT.has(ext) && !sensitive) {
         docs.push({ path: relative(root, full), sizeKB: Math.round(st.size / 1024), mtime: st.mtime.toISOString(), stale: Date.now() - st.mtimeMs > STALE_MS });
       }
       if (st.size > BIG_FILE) bigFiles.push({ path: relative(root, full), sizeMB: +(st.size / 1048576).toFixed(1) });
@@ -117,7 +121,7 @@ function scanRepo(repo) {
   const langStats = { filesOnly: 0 };
   walkLangs(repo, langs, 0, langStats);
   return { path: relative(root, repo) || '.', name: basename(repo), branch: gitOk ? (branch || 'unknown') : 'unknown',
-    headDate, commitCount, gitOk, shallow, hotFiles,
+    headDate, commitCount, gitOk, shallow, hotFiles, langLinesSkipped: langStats.filesOnly,
     languages: Object.entries(langs).map(([name, v]) => ({ name, ...v })).sort((a, b) => b.lines - a.lines) };
 }
 
@@ -163,7 +167,7 @@ docs.sort((a, b) => b.sizeKB - a.sizeKB);
 const docList = docs.slice(0, 200);
 const result = {
   root, scannedAt: new Date().toISOString(),
-  totals: { files: fileCount, gitRepos: repos.length, docs: docs.length, staleDocs, walkIncomplete,
+  totals: { files: fileCount, totalBytes, gitRepos: repos.length, docs: docs.length, staleDocs, walkIncomplete,
     sensitiveExcluded: sensitiveExcluded.length },
   repos, docsByExt, docList, bigFiles: bigFiles.slice(0, 30), warnings,
   docListTruncated: docs.length - docList.length,
@@ -177,11 +181,11 @@ if (outPath) {
 // 终端摘要
 const fmtLangs = r => r.languages.slice(0, 5).map(l => `${l.name} ${l.files} 文件`).join('、') || '无代码';
 console.log(`# 资料盘点：${root}`);
-console.log(`文件总数 ${fileCount}，git 仓库 ${repos.length} 个，文档 ${docs.length} 份（其中 ${staleDocs} 份超过 18 个月未动）${sensitiveExcluded.length ? `，敏感命名文件 ${sensitiveExcluded.length} 个（只登记排除，未读取）` : ''}${walkIncomplete ? '，⚠ 扫描不完整（见警告）' : ''}`);
+console.log(`文件总数 ${fileCount}（合计 ${(totalBytes / 1048576).toFixed(1)} MB），git 仓库 ${repos.length} 个，文档 ${docs.length} 份（其中 ${staleDocs} 份超过 18 个月未动）${sensitiveExcluded.length ? `，敏感命名文件 ${sensitiveExcluded.length} 个（只登记排除，未读取）` : ''}${walkIncomplete ? '，⚠ 扫描不完整（见警告）' : ''}`);
 for (const r of repos) {
   const label = r.gitOk ? '' : '（git 调用失败，以下历史数据不可信）';
   console.log(`\n## 仓库 ${safeName(r.name)}（${r.gitOk ? r.branch : 'unknown'}${label}，${r.commitCount} commits，最近提交 ${r.headDate?.slice(0, 10) || '无'}）`);
-  console.log(`语言：${fmtLangs(r)}`);
+  console.log(`语言：${fmtLangs(r)}${r.langLinesSkipped ? `；${r.langLinesSkipped} 个大文件（≥512KB）未计行数` : ''}`);
   if (!r.gitOk) console.log('历史读取失败（git 不可用或仓库损坏），热点与提交数不可用');
   else if (r.shallow === true) console.log(`浅克隆（历史不完整，${r.commitCount} 个可见提交），热点文件仅供参考，重要结论需完整克隆核实`);
   else if (r.commitCount < 5) console.log(`热点：提交历史很短（${r.commitCount} 个），热点文件参考价值有限`);

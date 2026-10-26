@@ -112,6 +112,10 @@ git -C ~/.agents/skills/onboard pull
 
 [查看一次完整拆解的节选](examples/agents-on-duty.md)：它帮助一个多 Agent 客服项目发现启动密钥缺失、错误示例数据和被跳过的数据库测试，并据此修正 README。
 
+## 改 skill 源码
+
+只改根目录（`SKILL.md`、`scripts/`），改完运行 `node scripts/sync-skills.mjs` 同步到插件布局，再跑 `node --test scripts/`——两个安装入口必须拿到同一份内容。细节见 [CONTRIBUTING.md](CONTRIBUTING.md)。
+
 ## English
 
 **onboard** turns an unfamiliar project into a clear, goal-driven path to understanding. It explains what matters now, what to look up later, and what evidence is still missing. Use it for project handover, onboarding, mixed documentation, README work, and project presentations.

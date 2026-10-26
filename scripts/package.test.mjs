@@ -40,6 +40,19 @@ test('both scripts share one secret-filter policy', () => {
   assert.equal(pick(fingerprint), pick(inventory), 'SECRET_NAME regex must be identical in both scripts');
 });
 
+test('both scripts share one directory-exclusion boundary', () => {
+  const setOf = (source, decl) => {
+    const m = source.match(new RegExp(`^const ${decl} = new Set\\(([^)]*)\\)`, 'm'));
+    assert.ok(m, `${decl} not found`);
+    return [...m[1].matchAll(/'([^']+)'/g)].map(x => x[1]).sort();
+  };
+  const fingerprint = readFileSync(join(root, 'scripts/fingerprint.mjs'), 'utf8');
+  const inventory = readFileSync(join(root, 'scripts/inventory.mjs'), 'utf8');
+  const omit = setOf(fingerprint, 'OMITTED_DIRS');
+  const excl = setOf(inventory, 'EXCLUDE_DIRS');
+  assert.deepEqual(omit, excl, 'fingerprint OMITTED_DIRS must match inventory EXCLUDE_DIRS');
+});
+
 test('Claude plugin metadata points to the packaged skill', () => {
   const plugin = JSON.parse(readFileSync(join(root, '.claude-plugin/plugin.json'), 'utf8'));
   const marketplace = JSON.parse(readFileSync(join(root, '.claude-plugin/marketplace.json'), 'utf8'));

@@ -16,7 +16,11 @@ const CONTENT_CAP = 512 * 1024;          // files up to this size are content-ha
 const MAX_GIT_OUTPUT = 64 * 1024 * 1024; // guard against ENOBUFS on huge repos
 const GIT_TIMEOUT = 30_000;
 const MAX_NESTED_DEPTH = 5;
-const OMITTED_DIRS = new Set(['.git', '项目拆解包', 'node_modules', '.venv', 'venv', 'dist', 'build', 'coverage', '__pycache__']);
+// 与 inventory.mjs 的 EXCLUDE_DIRS 保持同一份资料边界（package.test 断言一致）：
+// 构建产物目录的变化不算材料变化，否则每次编译都会误触发「材料已变」。
+const OMITTED_DIRS = new Set(['node_modules', '.git', 'dist', 'build', 'out', '.next', '.nuxt',
+  '__pycache__', '.venv', 'venv', 'env', 'target', 'vendor', 'coverage', '.gradle', '.idea',
+  '.vscode', 'site-packages', 'Pods', 'DerivedData', '__MACOSX', '.terraform', '项目拆解包']);
 const SECRET_NAME = /^(?:\.env(?:\..*)?|.*\.(?:pem|key|p12|pfx|jks|keystore)$|id_(?:rsa|dsa|ecdsa|ed25519)(?:\.pub)?$|\.npmrc$|\.netrc$|\.git-credentials$|.*credentials?\.json$|service-account.*\.json$|.*\.secret\.[^/]*$|secrets?\.[^/]*$)/i;
 
 const notes = [];
@@ -150,7 +154,10 @@ function fingerprint(dir, depth) {
           }
         }
         if (isNestedRepo && depth < MAX_NESTED_DEPTH) nested.push({ path, dir: full });
-        else if (!isNestedRepo) findNested(full);
+        else {
+          if (isNestedRepo) notes.push(`嵌套仓库超过 ${MAX_NESTED_DEPTH} 层深度上限，未纳入指纹: ${path}`);
+          if (!isNestedRepo) findNested(full);
+        }
       }
     };
     findNested(dir);

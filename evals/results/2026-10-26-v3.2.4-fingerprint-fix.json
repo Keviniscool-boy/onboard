@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-26",
+  "skill_version": "3.2.3→3.2.4（指纹修复轮）",
+  "fixture": "scripts/*.test.mjs（18 例）+ GitHub Actions 矩阵",
+  "agent": "无（本轮为脚本层验证，非 agent 冒烟）",
+  "goal_card": null,
+  "checks": {
+    "coverage_six_lists": null,
+    "citations_verifiable": null,
+    "markers_honest": null,
+    "artifact_budget_b7": null,
+    "boundaries_readonly": "pass",
+    "teaching_form": null,
+    "goal_alignment": null
+  },
+  "backfill_triggered": null,
+  "contradictions_found": [],
+  "known_limits": [
+    "本轮未跑真实 agent 冒烟（理解/交付双角色），agent 层面行为未复验",
+    "未覆盖真实 Claude 插件宿主加载、macOS/Linux 本地差异（Linux 由 CI ubuntu 覆盖测试层）",
+    "混合 Office/PDF 资料未在本轮重跑"
+  ],
+  "artifacts": [
+    "node --test scripts/ 18/18 通过（本机 Windows + CI ubuntu 18/20/22 + windows 20）",
+    "CI 首跑抓出 git stat 缓存盲区：tracked 文件等长改写+mtime 恢复对 git status 隐身 → 3.2.3 修复（全部 ≤512KB 文件内容哈希）",
+    "独立复现审核报告 U1（rev-h2 夹具）确认 changed/退出码 1",
+    "审核报告 U2 复现（target/ 构建产物）→ 两脚本目录排除集合统一 + package.test 一致性断言"
+  ],
+  "notes": "本轮对应第三方审核报告（审核对象 7f4bbd5/3.2.1）的 U1-U8 处置：U1 已由 3.2.3 修复并经 CI 与独立复现双确认；U2/U5/U6/U7/U3 于 3.2.4 修复；U4 部分落地（totals.totalBytes 报告总量，抽样节奏仍属 agent 层职责）；U8 即本记录。历史评测记录（v3-v3.1.1）描述旧指纹方案，不回填。"
+}

@@ -6,7 +6,7 @@
       "name": "onboard",
       "source": ".",
       "description": "Turn unfamiliar project materials into a sourced overview and goal-driven learning path, then teach or apply the findings to a deliverable",
-      "version": "3.2.0",
+      "version": "3.2.1",
       "category": "productivity",
       "keywords": ["onboarding", "learning-path", "codebase-understanding", "docs", "agent-skill"]
     }

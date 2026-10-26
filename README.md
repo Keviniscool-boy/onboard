@@ -1,6 +1,6 @@
 # onboard
 
-[![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/b/Keviniscool-boy/onboard)
+[![skills.sh](https://skills.sh/b/Keviniscool-boy/onboard?style=for-the-badge)](https://skills.sh/Keviniscool-boy/onboard)
 
 **把陌生项目变成一条可以执行的上手路径。**
 
@@ -37,11 +37,21 @@
 
 ## 怎么用
 
+运行前提：Node.js 18+（skill 自带脚本用），Git（仓库类材料的指纹与历史读取）。agent 本体不依赖其他运行时。
+
 安装：
 
 ```bash
 git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard
 ```
+
+目标目录已存在时 clone 会报错。更新已有安装：
+
+```bash
+git -C ~/.agents/skills/onboard pull
+```
+
+重装：先删除 `~/.agents/skills/onboard` 再 clone。也可用 `npx skills add Keviniscool-boy/onboard`。
 
 然后直接告诉 agent 资料位置和你的目标：
 

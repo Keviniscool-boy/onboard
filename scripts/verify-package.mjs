@@ -29,9 +29,9 @@ if (plugin && marketplace) {
     `CHANGELOG.md 缺少 ${plugin.version} 的条目`);
 }
 
-// 2. SKILL.md frontmatter 可解析，name 与插件一致，description 非空
+// 2. SKILL.md frontmatter 可解析，name 与插件一致，description 非空（兼容 CRLF 工作区）
 const skill = read('SKILL.md');
-const fm = skill.match(/^---\n([\s\S]*?)\n---\n/);
+const fm = skill.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
 check(fm !== null, 'SKILL.md 缺少 frontmatter');
 if (fm) {
   check(/^name:\s*\S/m.test(fm[1]), 'frontmatter 缺少 name');

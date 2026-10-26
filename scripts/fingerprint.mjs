@@ -89,9 +89,14 @@ function fingerprint(dir, depth) {
 
   let mode = 'files';
   let head = '';
+  // dir 是仓库根 ⇔ rev-parse --show-toplevel 成功且 --show-prefix 为空。
+  // 用 git 自己的原语判断，避免跨平台路径大小写/短路径（8.3）比较问题。
   const topLevel = gitRun(['rev-parse', '--show-toplevel']);
-  const isRepo = topLevel !== null &&
-    normalizeRoot(resolve(topLevel.trim())) === (process.platform === 'win32' ? dir.toLowerCase() : dir);
+  let isRepo = false;
+  if (topLevel !== null) {
+    const prefix = gitRun(['rev-parse', '--show-prefix']);
+    isRepo = prefix !== null && prefix.trim() === '';
+  }
 
   if (isRepo && depth <= MAX_NESTED_DEPTH) {
     mode = 'git';

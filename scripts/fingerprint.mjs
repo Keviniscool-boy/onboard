@@ -116,13 +116,22 @@ function fingerprint(dir, depth) {
       if (!pathOk && !originalOk) continue; // both sides secret/omitted: excluded by design
       // A rename across the filter boundary must still change the fingerprint.
       mix(`${entry.slice(0, 2)}\0${pathOk ? path : '[filtered]'}\0${originalOk ? original : original ? '[filtered]' : ''}`);
-      if (pathOk) add(path);
+      // Untracked material gets its content hashed here; tracked files are
+      // content-hashed via ls-files below (git's stat cache hides same-size
+      // same-mtime rewrites of tracked files from status).
+      if (pathOk && entry.startsWith('??') && !entry.endsWith('/')) add(path);
     }
 
     // Ignored material is real material (handover notes, local data …) and is
     // invisible to both HEAD and status, so it gets hashed explicitly.
     const ignored = gitRun(['ls-files', '--others', '--ignored', '--exclude-standard', '-z'], { fatal: true });
     for (const path of ignored.split('\0').filter(Boolean)) add(path);
+
+    // Tracked files: content-hash the small ones. HEAD alone misses worktree
+    // rewrites that git's stat cache classifies as unchanged (equal size and
+    // equal mtime), and status does not report them either.
+    const tracked = gitRun(['ls-files', '-z'], { fatal: true });
+    for (const path of tracked.split('\0').filter(Boolean)) add(path);
 
     // Nested repositories: the parent's status only shows a coarse entry for
     // them, so hash each one's own fingerprint recursively.

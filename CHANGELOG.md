@@ -3,6 +3,11 @@
 版本只增不改；行为变化对应 SKILL.md 或脚本的实际改动，工程与文档变化单独列出。
 发布节奏：改动 SKILL.md 的触发词、流程或边界 → 升 minor；修缺陷、补工程设施 → 升 patch。
 
+## 3.2.3 - 2026-10-26
+
+- H2 补全（CI 实测抓到）：git 的 stat 缓存会把「等长改写且 mtime 恢复到与索引一致」的 tracked 文件判定为未变化，`git status` 看不见。指纹现在对**所有** ≤512KB 的 tracked 文件做内容哈希（untracked/ignored 此前已覆盖）；SKILL.md 指纹说明同步。此前的 H2 修复只覆盖了未跟踪与忽略文件。
+- CI 修复：isRepo 改用 `rev-parse --show-prefix` 原语判断（路径字符串比对在 CI 的 8.3 短路径/大小写下不可靠）；测试步骤改 bash shell 展开 glob（Node 22 的目录参数不发现用例）。
+
 ## 3.2.2 - 2026-10-26
 
 工程与文档（skill 行为不变）：

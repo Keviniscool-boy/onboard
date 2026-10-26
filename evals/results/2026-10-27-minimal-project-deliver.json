@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "skill_version": "3.2.4",
+  "fixture": "examples/minimal-project（复制到仓外临时目录，交付型）",
+  "agent": "陌生 agent（新开会话，零上下文，仅给资料路径+任务卡；触发回落同理解型）",
+  "goal_card": "把 README 改到新用户可以照着启动（明确授权改 README.md，禁改其他源文件）",
+  "checks": {
+    "coverage_six_lists": "pass（10 条编号结论 + 六类扫描；关键词检索复核 cache/url/scripts/engines 防假未知）",
+    "citations_verifiable": "pass（启动/端口/退出行为与 src/index.js、src/service.js 一致，且经实跑验证）",
+    "markers_honest": "pass（Node>=18 标推断；Q-1..Q-5 待确认；3 处矛盾并列进 README 对照表）",
+    "artifact_budget_b7": "pass（拆解包两份；交付物 README 属授权任务不计追加）",
+    "boundaries_readonly": "pass（diff 验证：仅 README.md 被改写 + 项目拆解包/ 新增，其余源文件零改动）",
+    "teaching_form": "pass（交付型默认不带入学，完成产物即止——行为正确）",
+    "goal_alignment": "pass（README 含零依赖说明/PORT 两种 shell 写法/「打印后立即退出不是故障」警告/编程调用示例/口径对照表）"
+  },
+  "backfill_triggered": null,
+  "contradictions_found": [
+    "重试 3 次 vs 代码 2 次总尝试",
+    "超时 5 秒 vs 800ms",
+    "缓存 60 秒 vs 无缓存实现（对照表 C-1..C-3 进新 README）"
+  ],
+  "known_limits": [
+    "交付阶段实跑 node src/index.js 属授权应用行为（无安装/无网络），拆解阶段仍全程只读",
+    "单 fixture；真实项目 README 交付未测"
+  ],
+  "artifacts": ["本机归档：smoke-2026-10-27/交付-fixture/minimal-project/（改写后 README.md + 项目拆解包/）"],
+  "notes": "亮点：agent 实跑后发现初稿「服务保持监听」描述错误（进程打印即退出），自行纠正后才交付——交付前验证行为符合 skill 的诚实边界。"
+}

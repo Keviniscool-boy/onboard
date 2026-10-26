@@ -3,6 +3,11 @@
 版本只增不改；行为变化对应 SKILL.md 或脚本的实际改动，工程与文档变化单独列出。
 发布节奏：改动 SKILL.md 的触发词、流程或边界 → 升 minor；修缺陷、补工程设施 → 升 patch。
 
+## 3.2.5 - 2026-10-27
+
+- 复审观察项：fingerprint 输出标签 `changed files/bytes` 改为 `fingerprinted files/bytes`——该计数实为「纳入指纹的文件数」，原名称在 git 模式对干净仓库也会打印非零值，有误导
+- 补齐体验阶段证据：`evals/results/2026-10-27-minimal-project-understand.json` 与 `-deliver.json`——两个零上下文陌生 agent 在 minimal-project 上的双角色端到端冒烟（理解型：全流程+带学；交付型：实跑验证+README 交付），均通过判卷七项，边界经 diff 验证
+
 ## 3.2.4 - 2026-10-26
 
 第二轮审核（对象 3.2.1）处置；U1 阻断项已由 3.2.3 修复，本版处理其余各项：

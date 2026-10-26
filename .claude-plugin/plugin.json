@@ -1,6 +1,6 @@
 {
   "name": "onboard",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "description": "Turn unfamiliar project materials into a sourced overview and goal-driven learning path, then teach or apply the findings to a deliverable",
   "author": { "name": "Keviniscool-boy" },
   "skills": "./skills"

@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-27",
+  "skill_version": "3.2.4",
+  "fixture": "examples/minimal-project（复制到仓外临时目录，理解型）",
+  "agent": "陌生 agent（新开会话，零上下文，仅给资料路径+角色卡；本机已装 3.2.4 触发时同名歧义回落为直读 SKILL.md）",
+  "goal_card": "后端新人，一周内能独立修改 src/service.js 的重试逻辑",
+  "checks": {
+    "coverage_six_lists": "pass（六类上手点扫描 18 条，均有出处或明确缺口）",
+    "citations_verifiable": "pass（抽 4 条核对：O-3/O-5/O-6/O-7 与 src/service.js 实际行号内容一致）",
+    "markers_honest": "pass（O-12 标「推断，待验证」并给依据；Q 类进待确认；3 处矛盾并列未裁决）",
+    "artifact_budget_b7": "pass（仅 总览.md + 学习路径-后端.md，追加 0）",
+    "boundaries_readonly": "pass（diff 验证：源文件零改动，仅新增 项目拆解包/）",
+    "teaching_form": "pass（从 N1 开讲、出处随讲、结尾一个理解问题；进度记入路径）",
+    "goal_alignment": "pass（路径裁为后端版 N1-N5，围绕重试逻辑）"
+  },
+  "backfill_triggered": null,
+  "contradictions_found": [
+    "重试次数：docs/business.md:5 说 3 次 vs src/service.js:2 retries:2（代码语义为总尝试 2 次）",
+    "单次超时：docs/business.md:6 说 5 秒 vs timeoutMs:800",
+    "缓存：docs/business.md:7 说 60 秒缓存 vs 代码无任何缓存实现",
+    "额外发现：fixture README 自称「一处故意不一致」，实际 3 处——agent 点名了 README 自身口径不实"
+  ],
+  "known_limits": [
+    "单 fixture、单角色；未覆盖 Office/PDF 混合资料",
+    "agent 与被测 skill 同机安装（触发经同名歧义回落直读 SKILL.md，流程完整性不受影响，但触发词可靠性未在本轮验证）"
+  ],
+  "artifacts": ["本机归档：smoke-2026-10-27/理解-fixture/minimal-project/项目拆解包/（总览.md、学习路径-后端.md）"],
+  "notes": "指纹实跑并写入总览（57b5f329…）；技能流程第 0-5 步全部执行；无步骤遗漏或越权。"
+}

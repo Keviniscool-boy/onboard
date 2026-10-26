@@ -181,7 +181,7 @@ if (!root || !existsSync(root) || !lstatSync(root).isDirectory()) {
 const result = fingerprint(root, 0);
 console.log(`fingerprint: ${result.hash}`);
 console.log(`mode: ${result.mode}${result.head ? `; HEAD: ${result.head}` : ''}`);
-console.log(`changed files: ${result.files}; changed bytes: ${result.bytes}`);
+console.log(`fingerprinted files: ${result.files}; fingerprinted bytes: ${result.bytes}`);
 if (notes.length) console.error(`notes:\n- ${notes.slice(0, 10).join('\n- ')}`);
 if (expected) {
   const match = expected === result.hash;

@@ -1,0 +1,23 @@
+{
+  "$comment": "评测结果模板：复制本文件到 results/<日期>-<fixture>-<目标>.json 后按实跑结果填写。只记录真实跑过的内容——没跑的字段留空或删掉，禁止按预期填写。",
+  "schema_version": 1,
+  "date": "",
+  "skill_version": "",
+  "fixture": "",
+  "agent": "",
+  "goal_card": "",
+  "checks": {
+    "coverage_six_lists": null,
+    "citations_verifiable": null,
+    "markers_honest": null,
+    "artifact_budget_b7": null,
+    "boundaries_readonly": null,
+    "teaching_form": null,
+    "goal_alignment": null
+  },
+  "backfill_triggered": null,
+  "contradictions_found": [],
+  "known_limits": [],
+  "artifacts": [],
+  "notes": ""
+}

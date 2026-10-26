@@ -68,6 +68,35 @@ git -C ~/.agents/skills/onboard pull
 
 它会在资料目录生成 `项目拆解包/`，包含项目总览和你的学习路径。
 
+### 支持的客户端
+
+| 客户端 | 安装方式 | 说明 |
+|---|---|---|
+| 任何支持 SKILL.md 的 agent（Claude Code、Codex、ZCode 等） | `npx skills add Keviniscool-boy/onboard` 或手动 clone 到 skills 目录 | 通用方式，实测 Claude Code / Codex 可用 |
+| Claude Code | `/plugin marketplace add Keviniscool-boy/onboard` 后按提示安装 | 插件形态，`skills/onboard/` 自包含 |
+| ZCode | 插件市场 → 添加 → 本地目录（含 marketplace.json）或仓库 | 需 Node.js 18+ |
+
+### 验证安装
+
+装好后新开会话，用 [examples/minimal-project](examples/minimal-project) 试一遍：
+
+```text
+用 onboard 分析 examples/minimal-project。
+我是后端新人，目标是一周内能独立修改 src/service.js 的重试逻辑。
+先只做只读盘点，不要修改源文件。
+```
+
+正常表现：识别到 skill 并开工 → 只读扫描 → 生成 `项目拆解包/`（总览+学习路径）→
+关键结论挂代码行号 → 能指出业务文档与代码的重试次数矛盾。卡在哪一步，
+按 [evals/README.md](evals/README.md) 记录后提 issue。
+
+### 它做不到什么
+
+- **超大仓库走抽样**：文件超过 500 个或总量超 100MB 时只抽样盘点，覆盖范围会写进总览的资料覆盖声明，不是全量精读。
+- **只看静态材料**：碰不到真实数据库、线上服务和外部 API；结论全部来自你给的文件。
+- **缺什么说什么**：资料里没有的信息进「待确认」，不会脑补；PDF 扫描件、Excel 复杂公式、PPT 图表的识别质量取决于 agent 自身的文件工具。
+- **不是自动执行器**：默认不装依赖、不启动服务、不改源文件；需要改材料时先完成拆解、再按你的明确授权执行交付任务。
+
 ## 适合什么时候用
 
 适合：
@@ -88,6 +117,18 @@ git -C ~/.agents/skills/onboard pull
 **onboard** turns an unfamiliar project into a clear, goal-driven path to understanding. It explains what matters now, what to look up later, and what evidence is still missing. Use it for project handover, onboarding, mixed documentation, README work, and project presentations.
 
 Install: `git clone https://github.com/Keviniscool-boy/onboard ~/.agents/skills/onboard`
+
+Full English example:
+
+```text
+Use onboard to analyze examples/minimal-project.
+I am a backend engineer. My goal is to fix the retry flow in
+src/service.js within one week. Read-only first: produce an
+evidence-backed overview and a learning path, then teach me
+the most important parts.
+```
+
+Expected: read-only scan, a `项目拆解包/` overview where every claim cites a file and line, the docs-vs-code contradiction surfaced (retry count and timeout), and gaps listed as "to confirm" instead of silently filled.
 
 Advanced workflow and evaluation notes: [SKILL.md](SKILL.md) · [evals](evals/README.md)
 

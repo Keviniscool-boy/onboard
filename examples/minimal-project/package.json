@@ -1,0 +1,6 @@
+{
+  "name": "minimal-project",
+  "version": "1.0.0",
+  "description": "Tiny retry service used as an onboard demo fixture",
+  "main": "src/index.js"
+}

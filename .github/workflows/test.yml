@@ -24,6 +24,6 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: Run skill script tests
-        run: node --test scripts/*.test.mjs
+        run: node --test scripts/
       - name: Verify package consistency
         run: node scripts/verify-package.mjs

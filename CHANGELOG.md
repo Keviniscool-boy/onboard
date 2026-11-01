@@ -3,6 +3,12 @@
 版本只增不改；行为变化对应 SKILL.md 或脚本的实际改动，工程与文档变化单独列出。
 发布节奏：改动 SKILL.md 的触发词、流程或边界 → 升 minor；修缺陷、补工程设施 → 升 patch。
 
+## 3.2.6 - 2026-11-01
+
+工程与文档（skill 行为不变）：
+
+- 测试补充（均为既有行为，无脚本改动）：inventory 新增 3 个边界用例——文档超 18 个月标记 stale（`staleDocs` 计数、`docList[].stale` 字段与终端摘要口径一致）、构建/依赖目录（node_modules、dist、.venv）不计入材料、目录深度超过 15 层时如实上报 `walkIncomplete` 并出警告；fingerprint 新增 1 个边界用例——>512KB 大文件按 size+mtime 口径（等长且恢复 mtime 的改写不可见为 SKILL.md 文档化行为），附 mtime 变化可检出的对照组
+
 ## 3.2.5 - 2026-10-27
 
 - 复审观察项：fingerprint 输出标签 `changed files/bytes` 改为 `fingerprinted files/bytes`——该计数实为「纳入指纹的文件数」，原名称在 git 模式对干净仓库也会打印非零值，有误导

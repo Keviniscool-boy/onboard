@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import test from 'node:test';
@@ -153,6 +153,75 @@ test('M15/M16: non-ASCII hot-file names stay readable and safe on the terminal',
     assert.equal(r.status, 0);
     assert.ok(r.stdout.includes(name), `hot list should show the real name, got: ${r.stdout.split('\n').find(l => l.includes('热点'))}`);
     assert.ok(!/\\[0-9]{3}/.test(r.stdout), 'no octal-escaped names on the terminal');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('documents untouched for over 18 months are flagged stale and surfaced in the summary', () => {
+  const base = mkdtempSync(join(tmpdir(), 'onboard-inv-stale-'));
+  try {
+    const root = join(base, '资料');
+    mkdirSync(root);
+    writeFileSync(join(root, 'legacy.md'), 'old');
+    writeFileSync(join(root, 'fresh.md'), 'new');
+    const twoYearsAgo = new Date(Date.now() - 2 * 365.25 * 24 * 3600 * 1000);
+    utimesSync(join(root, 'legacy.md'), twoYearsAgo, twoYearsAgo);
+    const out = join(base, 'inv.json');
+    const r = run(root, out);
+    assert.equal(r.status, 0);
+    const result = JSON.parse(readArrayOf(out));
+    assert.equal(result.totals.staleDocs, 1);
+    const byPath = Object.fromEntries(result.docList.map(d => [d.path.replaceAll('\\', '/'), d]));
+    assert.equal(byPath['legacy.md'].stale, true);
+    assert.equal(byPath['fresh.md'].stale, false);
+    assert.match(r.stdout, /1 份超过 18 个月未动/);
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('build and dependency directories are excluded from the material count', () => {
+  const base = mkdtempSync(join(tmpdir(), 'onboard-inv-excl-'));
+  try {
+    const root = join(base, '资料');
+    mkdirSync(root);
+    writeFileSync(join(root, 'README.md'), 'x');
+    mkdirSync(join(root, 'node_modules', 'pkg'), { recursive: true });
+    writeFileSync(join(root, 'node_modules', 'pkg', 'index.js'), 'module.exports=1');
+    mkdirSync(join(root, 'dist'), { recursive: true });
+    writeFileSync(join(root, 'dist', 'bundle.js'), 'compiled');
+    mkdirSync(join(root, '.venv'), { recursive: true });
+    writeFileSync(join(root, '.venv', 'lib.py'), 'import os');
+    const out = join(base, 'inv.json');
+    const r = run(root, out);
+    assert.equal(r.status, 0);
+    const result = JSON.parse(readArrayOf(out));
+    assert.equal(result.totals.files, 1);
+    assert.equal(result.totals.docs, 1);
+    assert.equal(result.docsByExt['.md'], 1);
+    assert.ok(!r.stdout.includes('node_modules'), 'excluded material must not reach the terminal');
+  } finally {
+    rmSync(base, { recursive: true, force: true });
+  }
+});
+
+test('directory trees deeper than the scan limit are reported honestly', () => {
+  const base = mkdtempSync(join(tmpdir(), 'onboard-inv-depth-'));
+  try {
+    const root = join(base, '资料');
+    mkdirSync(root);
+    let deep = root;
+    for (let i = 1; i <= 17; i++) { deep = join(deep, `d${i}`); mkdirSync(deep); }
+    writeFileSync(join(deep, 'leaf.md'), 'x');
+    const out = join(base, 'inv.json');
+    const r = run(root, out);
+    assert.equal(r.status, 0);
+    const result = JSON.parse(readArrayOf(out));
+    assert.equal(result.totals.walkIncomplete, true);
+    assert.ok(result.warnings.some(w => w.includes('目录深度超过 15')),
+      `expected a depth warning, got: ${JSON.stringify(result.warnings)}`);
+    assert.equal(result.totals.files, 0); // leaf.md 在超深处，不应被计入
   } finally {
     rmSync(base, { recursive: true, force: true });
   }

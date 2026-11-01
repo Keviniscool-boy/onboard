@@ -183,3 +183,32 @@ test('M6: rename across the secret filter changes the fingerprint', () => {
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+// 大文件（>512KB）按 SKILL.md 口径只混入 size+mtime：等长且恢复 mtime 的改写对指纹不可见。
+// 本用例钉住这个文档化的边界；若将来对大文件也做内容哈希，请同步更新 SKILL.md 与本用例。
+// 注意：mtime 钉到整秒再写回——NTFS 的 mtime 有亚毫秒精度，stat 读出再 utimes 写回会产生
+// 亚毫秒漂移，让大文件的 mtime 指纹"假变化"（rewriteSameSizeSameMtime 的小文件用例不受影响，
+// 因为它们走内容哈希）。
+test('files above the 512KB content cap fall back to size+mtime metadata', () => {
+  const root = mkdtempSync(join(tmpdir(), 'onboard-fingerprint-cap-'));
+  try {
+    const big = join(root, 'big.md');
+    const stamp = new Date(Date.now());
+    stamp.setMilliseconds(0); // 整秒，保证写回后与首次指纹完全一致
+    writeFileSync(big, 'A'.repeat(600 * 1024)); // 600KB > CONTENT_CAP
+    utimesSync(big, stamp, stamp);
+    const first = value(run(root).stdout);
+    assert.ok(first);
+
+    writeFileSync(big, 'B'.repeat(600 * 1024));
+    utimesSync(big, stamp, stamp); // 等长 + 完全相同的 mtime
+    assert.equal(run(root, first).status, 0, 'same-size same-mtime rewrite above the cap is invisible by design');
+
+    // 对照组：同样的改写，只要 mtime 变化就必须检出
+    writeFileSync(big, 'C'.repeat(600 * 1024));
+    utimesSync(big, stamp, new Date(stamp.getTime() + 5000));
+    assert.equal(run(root, first).status, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

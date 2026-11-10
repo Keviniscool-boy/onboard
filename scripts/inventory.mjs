@@ -174,8 +174,17 @@ const result = {
   bigFilesTruncated: Math.max(0, bigFiles.length - 30),
   sensitiveFiles: sensitiveExcluded.slice(0, 100),
 };
+let jsonWritten = false;
 if (outPath) {
-  writeFileSync(outPath, JSON.stringify(result, null, 2), 'utf8');
+  // 输出路径写不了（父目录缺失、只读、是目录等）时降级为纯摘要输出并报错退出，
+  // 不让整次扫描白跑，也不让终端摘要跟着一起丢。
+  try {
+    writeFileSync(outPath, JSON.stringify(result, null, 2), 'utf8');
+    jsonWritten = true;
+  } catch (e) {
+    console.error(`JSON 写入失败：${outPath}：${e.code || e.message}`);
+    process.exitCode = 1;
+  }
 }
 
 // 终端摘要
@@ -195,7 +204,7 @@ console.log(`\n## 文档分布：${Object.entries(docsByExt).map(([e, n]) => `${
 console.log(`最大的文档：${docList.slice(0, 8).map(d => `${safeName(d.path)}(${d.sizeKB}KB${d.stale ? ',可能过期' : ''})`).join('、') || '无'}`);
 if (bigFiles.length) console.log(`\n大文件(>20MB)：${bigFiles.slice(0, 10).map(b => `${safeName(b.path)}(${b.sizeMB}MB)`).join('、')}`);
 if (warnings.length) console.log(`\n警告：\n- ${warnings.slice(0, 10).join('\n- ')}`);
-if (outPath) {
+if (outPath && jsonWritten) {
   const trunc = [];
   if (result.docListTruncated > 0) trunc.push(`文档清单仅前 ${docList.length}/${docs.length}`);
   if (result.bigFilesTruncated > 0) trunc.push(`大文件清单仅前 30/${bigFiles.length}`);

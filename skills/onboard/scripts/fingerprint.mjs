@@ -31,7 +31,10 @@ function normalizeRoot(p) {
 }
 
 function sortedEntries(dir) {
-  const entries = readdirSync(dir, { withFileTypes: true });
+  // 读不了的目录（无权限等）按空处理并登记，不让整次指纹计算崩溃，与盘点脚本同一容错口径。
+  let entries;
+  try { entries = readdirSync(dir, { withFileTypes: true }); }
+  catch { notes.push(`unreadable dir: ${relative(root, dir) || '.'}`); return []; }
   entries.sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
   return entries;
 }

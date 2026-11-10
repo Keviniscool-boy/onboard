@@ -1,8 +1,7 @@
 #!/usr/bin/env node
-// Print a read-only material fingerprint.
-// Hashes file metadata plus, for files up to a size cap, their content —
-// so equal-size equal-mtime rewrites are still detected. Never reads or
-// reports the contents of secret-named files; material never leaves the machine.
+// 只读地计算材料指纹：哈希文件元数据，小文件额外哈希内容，
+// 等大小、等修改时间的改写也能检出。敏感命名的文件绝不读取、绝不外报，
+// 材料数据不出本机。
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, readFileSync, realpathSync, readdirSync, statSync } from 'node:fs';
@@ -10,10 +9,10 @@ import { join, relative, resolve } from 'node:path';
 
 const rootArg = process.argv[2] || '.';
 const expected = process.argv[3];
-const GIT_COMMON = ['-c', 'core.fsmonitor=false']; // never run repo-configured fsmonitor helpers
+const GIT_COMMON = ['-c', 'core.fsmonitor=false']; // 每次都禁用仓库配置的监控钩子，避免扫描触发第三方命令或被拖慢
 const GIT_STATUS_ARGS = ['status', '--porcelain=v1', '-z', '--untracked-files=all'];
-const CONTENT_CAP = 512 * 1024;          // files up to this size are content-hashed
-const MAX_GIT_OUTPUT = 64 * 1024 * 1024; // guard against ENOBUFS on huge repos
+const CONTENT_CAP = 512 * 1024;          // 不超过此大小的文件按内容哈希
+const MAX_GIT_OUTPUT = 64 * 1024 * 1024; // 上限防止大仓库把子进程输出缓冲撑爆
 const GIT_TIMEOUT = 30_000;
 const MAX_NESTED_DEPTH = 5;
 // 与 inventory.mjs 的 EXCLUDE_DIRS 保持同一份资料边界（package.test 断言一致）：
@@ -26,7 +25,7 @@ const SECRET_NAME = /^(?:\.env(?:\..*)?|.*\.(?:pem|key|p12|pfx|jks|keystore)$|id
 const notes = [];
 
 function normalizeRoot(p) {
-  try { p = realpathSync(p); } catch { /* keep the resolved path */ }
+  try { p = realpathSync(p); } catch { /* 解析失败就沿用已解析的路径 */ }
   return process.platform === 'win32' ? p.toLowerCase() : p;
 }
 
@@ -47,8 +46,8 @@ function include(path) {
   });
 }
 
-// Recursively fingerprint one directory (git-aware). Used for the root and,
-// with increasing depth, for nested repositories the outer repo cannot see into.
+// 递归计算一个目录的指纹，感知版本库。根目录用它，
+// 外层版本库看不见的嵌套仓库也用它，深度逐层递减直到上限。
 function fingerprint(dir, depth) {
   const hash = createHash('sha256');
   let files = 0;
@@ -120,28 +119,27 @@ function fingerprint(dir, depth) {
       const original = renamed ? entries[++i] : '';
       const pathOk = include(path);
       const originalOk = original ? include(original) : false;
-      if (!pathOk && !originalOk) continue; // both sides secret/omitted: excluded by design
-      // A rename across the filter boundary must still change the fingerprint.
+      if (!pathOk && !originalOk) continue; // 新旧两侧都被过滤：按设计跳过
+      // 改名跨过过滤边界时指纹必须变化，所以新旧路径都要参与混合。
       mix(`${entry.slice(0, 2)}\0${pathOk ? path : '[filtered]'}\0${originalOk ? original : original ? '[filtered]' : ''}`);
-      // Untracked material gets its content hashed here; tracked files are
-      // content-hashed via ls-files below (git's stat cache hides same-size
-      // same-mtime rewrites of tracked files from status).
+      // 未跟踪的新材料在这里就地做内容哈希；已跟踪的小文件在下面按清单统一哈希。
+      // 原因：版本库的状态缓存会把等大小、等修改时间的已跟踪改写误判成无变化，
+      // 状态输出也看不到这类改写。
       if (pathOk && entry.startsWith('??') && !entry.endsWith('/')) add(path);
     }
 
-    // Ignored material is real material (handover notes, local data …) and is
-    // invisible to both HEAD and status, so it gets hashed explicitly.
+    // 被忽略的资料也是真材料（交接笔记、本地数据等），
+    // 最新提交和状态输出都看不到它们，必须在这里显式哈希。
     const ignored = gitRun(['ls-files', '--others', '--ignored', '--exclude-standard', '-z'], { fatal: true });
     for (const path of ignored.split('\0').filter(Boolean)) add(path);
 
-    // Tracked files: content-hash the small ones. HEAD alone misses worktree
-    // rewrites that git's stat cache classifies as unchanged (equal size and
-    // equal mtime), and status does not report them either.
+    // 已跟踪文件：小文件做内容哈希。只看最新提交会漏掉工作区里
+    // 等大小、等修改时间的改写（状态缓存视为无变化），状态输出同样不报。
     const tracked = gitRun(['ls-files', '-z'], { fatal: true });
     for (const path of tracked.split('\0').filter(Boolean)) add(path);
 
-    // Nested repositories: the parent's status only shows a coarse entry for
-    // them, so hash each one's own fingerprint recursively.
+    // 嵌套仓库在父库里只有一条粗粒度记录，
+    // 所以要逐个递归取其自身指纹再混入总指纹。
     const nested = [];
     const findNested = current => {
       for (const item of sortedEntries(current)) {

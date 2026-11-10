@@ -5,7 +5,9 @@ async function fetchPrice(url) {
   let lastError;
   for (let attempt = 1; attempt <= config.retries; attempt++) {
     try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(config.timeoutMs) });
+      const res = await fetch(url, {
+        signal: AbortSignal.timeout(config.timeoutMs),
+      });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     } catch (err) {

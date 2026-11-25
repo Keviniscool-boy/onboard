@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "date": "2026-11-25",
+  "skill_version": "3.3.0",
+  "fixture": "examples/minimal-project（完整复制到仓外临时目录，理解型）",
+  "agent": "新上下文通用任务 agent；仅提供当前 SKILL.md、完整 fixture 副本和角色卡，未读取仓库根 README、贡献指南或既有 eval",
+  "goal_card": "后端新人，一周内能独立修改 src/service.js 的重试逻辑",
+  "checks": {
+    "coverage_six_lists": "pass（六类均有事实或明确缺口，覆盖入口/依赖、操作、失败路径、限制风险、易混口径和新人障碍）",
+    "citations_verifiable": "pass（抽查 package.json、业务文档、src/index.js、src/service.js 的路径与符号出处，均支持对应结论；未估算行号）",
+    "markers_honest": "pass（文档与代码的重试、超时口径并列；缓存/真实监听实现边界及待确认问题有说明）",
+    "artifact_budget_b7": "pass（仅生成总览.md 与学习路径-后端新人.md）",
+    "boundaries_readonly": "pass（完整 fixture 副本与源 fixture 对比仅多出项目拆解包；未安装、联网、构建或运行项目代码）",
+    "teaching_form": "pass（三句摘要后立即讲第一项，并附一条出处和一个理解问题）",
+    "goal_alignment": "pass（三步路径聚焦重试循环、文档口径冲突和失败处理/调用边界）"
+  },
+  "backfill_triggered": null,
+  "contradictions_found": [
+    "重试口径：docs/business.md 说失败后重试 3 次；src/service.js 当前循环最多发起 2 次请求，agent 并列呈现、未裁决",
+    "超时口径：业务文档说 5 秒；src/service.js 配置 800 毫秒，agent 并列呈现、未裁决",
+    "缓存口径：业务文档说缓存 60 秒；已读代码未展示缓存实现",
+    "启动表现：src/index.js 打印 listening；src/service.js 的 startServer 只返回对象并注明不真正监听"
+  ],
+  "known_limits": [
+    "单 fixture、单角色；未覆盖其他项目类型或交付型目标",
+    "只做静态材料拆解，未运行项目代码或验证真实网络/服务行为",
+    "本次为新上下文 agent 冒烟，不等同于跨客户端安装触发验证"
+  ],
+  "artifacts": [
+    "本机归档：session files/fresh-onboard-smoke-20261125/minimal-project/项目拆解包/（总览.md、学习路径-后端新人.md）"
+  ],
+  "notes": "fixture 共 5 个文件、2844 bytes；拆解包生成前后 fingerprint 均为 70ac686a9ac92a792dcc73b7d39718393704d59b64b0aa2ed3802a34fe7f6e4e。源码副本与原 fixture 对比无差异。"
+}
